@@ -1,6 +1,7 @@
 #include "Tauler.h"
+#include "GraphicManager.h"
+#include "InfoJoc.h"
 #include <iostream>
-
 using namespace std;
 
 Tauler::Tauler()
@@ -32,6 +33,7 @@ Tauler::Tauler()
     }
 }
 
+
 void Tauler::inicialitza(ColorFigura taulerInicial[MAX_FILA][MAX_COL])
 {
     for (int fila = 0; fila < MAX_FILA; fila++)
@@ -46,7 +48,8 @@ void Tauler::inicialitza(ColorFigura taulerInicial[MAX_FILA][MAX_COL])
             }
         }
     }
-}
+} 
+
 
 bool Tauler::verificarColisio(const Figura& figura)
 {
@@ -66,6 +69,7 @@ bool Tauler::verificarColisio(const Figura& figura)
     }
     return false;
 }
+
 
 int Tauler::posarFigura(const Figura& figura)
 {
@@ -93,22 +97,29 @@ int Tauler::posarFigura(const Figura& figura)
     return filesEliminades;
 }
 
+
 void Tauler::mostrarFigura(const Figura& figura)
 {
-    int estructura[MAX_ALTURA][MAX_AMPLADA];
-    figura.getEstructura(estructura);
+    int mascara[MAX_ALTURA][MAX_AMPLADA];
 
-    for (int i = 0; i < figura.getAltura(); i++)
+    ColorFigura color = figura.getColor();
+    figura.getEstructura(mascara);
+    int filaTauler = figura.getFila() - 1;
+    for (int filaMascara = 0; filaMascara < figura.getAltura(); filaMascara++)
     {
-        for (int j = 0; j < figura.getAmplada(); j++)
+        int colTauler = figura.getColumna() + 1;
+        for (int colMascara = 0; colMascara < figura.getAmplada(); colMascara++)
         {
-            if (estructura[i][j])
+            if (mascara[filaMascara][colMascara] > 0)
             {
-                m_tauler[figura.getFila() - 1 + i][figura.getColumna() + 1 + j] = figura.getColor();
+                m_tauler[filaTauler][colTauler] = color;
             }
+            colTauler++;
         }
+        filaTauler++;
     }
 }
+
 
 void Tauler::baixarFila(int fila)
 {
@@ -127,6 +138,7 @@ void Tauler::baixarFila(int fila)
     m_lliures[0] = MAX_COL;
 }
 
+
 void Tauler::getEstatTauler(ColorFigura tauler[MAX_FILA][MAX_COL])
 {
     for (int i = 0; i < MAX_FILA; i++)
@@ -136,4 +148,18 @@ void Tauler::getEstatTauler(ColorFigura tauler[MAX_FILA][MAX_COL])
             tauler[i][j] = m_tauler[i][j + 2];
         }
     }
+}
+
+
+void Tauler::dibuixa()
+{
+    GraphicManager::getInstance()->drawSprite(GRAFIC_TAULER, POS_X_TAULER, POS_Y_TAULER, false);
+
+    for (int i = 0; i < MAX_FILA; i++)
+        for (int j = 0; j < MAX_COL; j++)
+        {
+            if (m_tauler[i][j + 2] != COLOR_NEGRE)
+                dibuixaQuadrat(m_tauler[i][j + 2], POS_X_TAULER + ((j + 1) * MIDA_QUADRAT),
+                    POS_Y_TAULER + (i * MIDA_QUADRAT));
+        }
 }
